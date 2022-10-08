@@ -120,9 +120,9 @@ exports.updateRestaurant = async (req, res) => {
     try {
         const restaurant = await Restaurant.findOne({ _id: req.params.id });
 
-        if(!restaurant) {
+        if (!restaurant) {
             return res.status(200).send({
-                message : "No Restaurant found for given ID."
+                message: "No Restaurant found for given ID."
             })
         } else {
             restaurant.name = req.body.name;
@@ -135,7 +135,7 @@ exports.updateRestaurant = async (req, res) => {
         }
         await restaurant.save();
         res.status(200).send({
-            message : "Restaurant updated successfully."
+            message: "Restaurant updated successfully."
         })
     } catch (err) {
         console.log("Error while fetching restaurant : ", err.message);
@@ -145,3 +145,38 @@ exports.updateRestaurant = async (req, res) => {
     }
 }
 
+exports.deleteRestaurant = async (req, res) => {
+    try {
+        const restaurant = await Restaurant.findOne({ _id: req.params.id });
+        if (restaurant) {
+            await restaurant.remove();
+        }
+
+        res.status(200).send({
+            restaurant,
+            message: `Restaurant deleted successfully.`
+        });
+    } catch (err) {
+        console.log("Error while deleting restaurant: ", err.message);
+        return res.status(500).send({
+            message: "Some error occured while deleting the restaurant"
+        })
+    }
+}
+
+exports.deleteAllRestaurants = async (req, res) => {
+    try {
+        const deleted = await Restaurant.deleteMany();
+
+        return res.status(200).send({
+            restaurants: deleted,
+            message: "Restaurants deleted successfully."
+        });
+        
+    } catch (err) {
+        console.log("Error while deleting restaurants: ", err.message);
+        return res.status(500).send({
+            message: "Some error occured while deleting the restaurants"
+        })
+    }
+}

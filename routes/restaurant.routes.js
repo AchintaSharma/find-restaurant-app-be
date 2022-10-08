@@ -14,4 +14,8 @@ module.exports = (app) => {
     app.get("/findrestaurant/api/v1/restaurant/rating/:ratingValue", restaurantController.findRestaurantByRating);
 
     app.put("/findrestaurant/api/v1/restaurant/:id", restaurantController.updateRestaurant);
+
+    app.delete("/findrestaurant/api/v1/restaurant/:id", restaurantController.deleteRestaurant);
+
+    app.delete("/findrestaurant/api/v1/restaurant/", restaurantController.deleteAllRestaurants);
 }
