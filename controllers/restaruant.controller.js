@@ -2,9 +2,7 @@ const dbConfig = require('../configs/db.config');
 const Restaurant = require('../models/restaruant.model');
 
 exports.addRestaurant = async (req, res) => {
-
     if (Object.keys(req.body).length === 0) {
-        console.log("trapped");
         return res.status(400).send({
             message: "Content cannot be empty"
         })
@@ -65,10 +63,10 @@ exports.findRestaurantCategories = async (req, res) => {
 
 exports.findRestaurantByCategory = async (req, res) => {
     try {
-        const restaruants = await Restaurant.find({ category: req.params.categoryName});
+        const restaruants = await Restaurant.find({ category: req.params.categoryName });
 
         return res.status(200).send(restaruants);
-        
+
 
     } catch (err) {
         console.log("Error while fetching restaurant categories: ", err.message);
@@ -80,15 +78,15 @@ exports.findRestaurantByCategory = async (req, res) => {
 
 exports.findRestaurantById = async (req, res) => {
     try {
-        const restaurant = await Restaurant.find({ _id: req.params.id});
+        const restaurant = await Restaurant.find({ _id: req.params.id });
 
-        if(!restaurant) {
+        if (!restaurant) {
             return res.status(404).send({
-                message : "No Restaurant found with the given ID."
+                message: "No Restaurant found with the given ID."
             })
         }
         return res.status(200).send(restaurant);
-        
+
     } catch (err) {
         console.log("Error while fetching restaurant : ", err.message);
         return res.status(500).send({
@@ -100,10 +98,10 @@ exports.findRestaurantById = async (req, res) => {
 
 exports.findRestaurantByRating = async (req, res) => {
     try {
-        const restaurant = await Restaurant.find({ rating : {$gte : req.params.ratingValue}});
+        const restaurant = await Restaurant.find({ rating: { $gte: req.params.ratingValue } });
 
         return res.status(200).send(restaurant);
-        
+
     } catch (err) {
         console.log("Error while fetching restaurant : ", err.message);
         return res.status(500).send({
@@ -111,3 +109,39 @@ exports.findRestaurantByRating = async (req, res) => {
         })
     }
 }
+
+exports.updateRestaurant = async (req, res) => {
+    if (Object.keys(req.body).length === 0) {
+        return res.status(400).send({
+            message: "Restaurant data is required."
+        })
+    };
+
+    try {
+        const restaurant = await Restaurant.findOne({ _id: req.params.id });
+
+        if(!restaurant) {
+            return res.status(200).send({
+                message : "No Restaurant found for given ID."
+            })
+        } else {
+            restaurant.name = req.body.name;
+            restaurant.description = req.body.description;
+            restaurant.category = req.body.category;
+            restaurant.imageUrl = req.body.imageUrl;
+            restaurant.location = req.body.location;
+            restaurant.phone = req.body.phone;
+            restaurant.rating = req.body.rating;
+        }
+        await restaurant.save();
+        res.status(200).send({
+            message : "Restaurant updated successfully."
+        })
+    } catch (err) {
+        console.log("Error while fetching restaurant : ", err.message);
+        return res.status(500).send({
+            message: "Some error occured while fetching the Restaurant"
+        })
+    }
+}
+
