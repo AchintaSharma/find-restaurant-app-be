@@ -1,23 +1,29 @@
+const { default: mongoose } = require('mongoose');
 const dbConfig = require('../configs/db.config');
 const Restaurant = require('../models/restaruant.model');
 
+//Method for adding a restaurant
 exports.addRestaurant = async (req, res) => {
-    if (Object.keys(req.body).length === 0) {
+    /**
+     * Check if any details is not provided in req body. 
+     * Additional middleware may be used for detailed validation
+     */
+    if (Object.keys(req.body).length < 7) {
         return res.status(400).send({
             message: "Content cannot be empty"
         })
     };
-
+    //Create an object having the request details
     const restaurantObj = {
         name: req.body.name,
         description: req.body.description,
         category: req.body.category,
-        imageUrl: req.body.imageUrl,
+        imageURL: req.body.imageURL,
         location: req.body.location,
         phone: req.body.phone,
         rating: req.body.rating
     };
-
+    //Store the object in DB
     try {
         const restaurant = await Restaurant.create(restaurantObj);
 
@@ -30,6 +36,7 @@ exports.addRestaurant = async (req, res) => {
     }
 }
 
+//Method to fetch all restaurants
 exports.findAllRestaurants = async (req, res) => {
     try {
         const restaurants = await Restaurant.find();
@@ -47,6 +54,7 @@ exports.findAllRestaurants = async (req, res) => {
     }
 }
 
+//Find all categories of restaurants
 exports.findRestaurantCategories = async (req, res) => {
     try {
         const restaruantCategories = await Restaurant.find().distinct('category');
@@ -56,12 +64,13 @@ exports.findRestaurantCategories = async (req, res) => {
     } catch (err) {
         console.log("Error while fetching restaurant categories: ", err.message);
         return res.status(500).send({
-            message: "Some internal server error occured while fetching categories"
+            message: "Some error occured while fetching Categories"
         })
     }
 }
 
-exports.findRestaurantByCategory = async (req, res) => {
+//Find all restaurants of a particular category
+exports.findRestaurantByCategoryName = async (req, res) => {
     try {
         const restaruants = await Restaurant.find({ category: req.params.categoryName });
 
@@ -76,11 +85,19 @@ exports.findRestaurantByCategory = async (req, res) => {
     }
 }
 
+//Method to find restaurant by id
 exports.findRestaurantById = async (req, res) => {
+    // Handle exception for invalid id 
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+        return res.status(400).send({
+            message : "Invalid id type"
+        });
+    }
     try {
         const restaurant = await Restaurant.find({ _id: req.params.id });
-
-        if (!restaurant) {
+        console.log(restaurant)
+        if (restaurant.length == 0) {
+            console.log("Entered")
             return res.status(404).send({
                 message: "No Restaurant found with the given ID."
             })
@@ -95,7 +112,7 @@ exports.findRestaurantById = async (req, res) => {
     }
 }
 
-
+//Method to fetch restaurants by rating value
 exports.findRestaurantByRating = async (req, res) => {
     try {
         const restaurant = await Restaurant.find({ rating: { $gte: req.params.ratingValue } });
@@ -110,10 +127,15 @@ exports.findRestaurantByRating = async (req, res) => {
     }
 }
 
+//Method to update details of a restaurant with a particular id
 exports.updateRestaurant = async (req, res) => {
-    if (Object.keys(req.body).length === 0) {
+    /**
+     * Check if any details is not provided in req body. 
+     * Additional middleware may be used for detailed validation
+     */
+    if (Object.keys(req.body).length < 7) {
         return res.status(400).send({
-            message: "Restaurant data is required."
+            message: "Restaurant Data is required."
         })
     };
 
@@ -128,7 +150,7 @@ exports.updateRestaurant = async (req, res) => {
             restaurant.name = req.body.name;
             restaurant.description = req.body.description;
             restaurant.category = req.body.category;
-            restaurant.imageUrl = req.body.imageUrl;
+            restaurant.imageURL = req.body.imageURL;
             restaurant.location = req.body.location;
             restaurant.phone = req.body.phone;
             restaurant.rating = req.body.rating;
@@ -145,7 +167,14 @@ exports.updateRestaurant = async (req, res) => {
     }
 }
 
+//Method to delete a restaurant by id
 exports.deleteRestaurant = async (req, res) => {
+    // Handle exception for invalid id 
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+        return res.status(400).send({
+            message : "Invalid id type"
+        });
+    }
     try {
         const restaurant = await Restaurant.findOne({ _id: req.params.id });
         if (restaurant) {
@@ -159,11 +188,12 @@ exports.deleteRestaurant = async (req, res) => {
     } catch (err) {
         console.log("Error while deleting restaurant: ", err.message);
         return res.status(500).send({
-            message: "Some error occured while deleting the restaurant"
+            message: "Some error occured while deleting the Restaurant."
         })
     }
 }
 
+//Method to delete all restaurants
 exports.deleteAllRestaurants = async (req, res) => {
     try {
         const deleted = await Restaurant.deleteMany();
@@ -172,11 +202,11 @@ exports.deleteAllRestaurants = async (req, res) => {
             restaurants: deleted,
             message: "Restaurants deleted successfully."
         });
-        
+
     } catch (err) {
         console.log("Error while deleting restaurants: ", err.message);
         return res.status(500).send({
-            message: "Some error occured while deleting the restaurants"
+            message: "Some error occured while deleting the Restaurants."
         })
     }
 }

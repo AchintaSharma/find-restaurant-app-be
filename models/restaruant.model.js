@@ -1,5 +1,7 @@
+//Import dependencies
 const mongoose = require('mongoose');
 
+//Define Restaurant Schema
 const restaurantSchema = new mongoose.Schema({
     name : {
         type : String,
@@ -13,7 +15,10 @@ const restaurantSchema = new mongoose.Schema({
         type : String,
         required : true
     },
-    imageUrl : String,
+    imageURL : {
+        type : String,
+        required : true 
+    },
     location : {
         type : String,
         required : true
@@ -28,4 +33,5 @@ const restaurantSchema = new mongoose.Schema({
     }
 }, {timestamps : true});
 
+//Export Restaurant Schema 
 module.exports = new mongoose.model('Restaurant', restaurantSchema);
